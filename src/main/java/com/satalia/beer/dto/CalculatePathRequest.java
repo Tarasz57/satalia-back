@@ -12,8 +12,8 @@ import lombok.Setter;
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class CalculatePathRequest {
 
-    private double startingLatitude;
-    private double startingLongitude;
+    private double latStart;
+    private double lonStart;
     private double distanceAvailable;
 
 }

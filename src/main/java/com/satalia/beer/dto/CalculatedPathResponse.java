@@ -18,6 +18,6 @@ public class CalculatedPathResponse {
 
     private List<String> breweriesVisited;
     private List<String> beersCollected;
-    private int distanceTraveled;
+    private Double distanceTraveled;
 
 }
