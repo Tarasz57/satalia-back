@@ -5,13 +5,11 @@ import com.satalia.beer.dto.CalculatedPathResponse;
 import com.satalia.beer.model.BreweryLocationModel;
 import com.satalia.beer.repository.BeerRepository;
 import com.satalia.beer.repository.BreweryLocationRepository;
-import com.satalia.beer.repository.BreweryRepository;
 import com.satalia.beer.utils.Haversine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -19,13 +17,11 @@ import java.util.List;
 public class PathCalculationService {
 
     private BeerRepository beerRepository;
-    private BreweryRepository breweryRepository;
     private BreweryLocationRepository breweryLocationRepository;
 
     @Autowired
-    public PathCalculationService(BeerRepository beerRepository, BreweryRepository breweryRepository, BreweryLocationRepository breweryLocationRepository) {
+    public PathCalculationService(BeerRepository beerRepository, BreweryLocationRepository breweryLocationRepository) {
         this.beerRepository = beerRepository;
-        this.breweryRepository = breweryRepository;
         this.breweryLocationRepository = breweryLocationRepository;
     }
 
@@ -42,13 +38,13 @@ public class PathCalculationService {
         List<BreweryLocationModel> locationInfo = breweryLocationRepository.findAllById();
         calculateDistance(startingLat, startingLon, locationInfo);
 
-
         while(fuelLeft >= locationInfo.get(0).getDistanceFromCurrentPos() + Haversine.haversine(locationInfo.get(0).getLatitude(), locationInfo.get(0).getLongitude(), startingLat, startingLon)) {
             BreweryLocationModel currentBrewery = locationInfo.get(0);
+            Double distanceFromCurrentPos = currentBrewery.getDistanceFromCurrentPos();
             visitedBreweries.add(formatBreweryOutput(currentBrewery));
-            distanceTravelled += currentBrewery.getDistanceFromCurrentPos();
+            distanceTravelled += distanceFromCurrentPos;
             beersCollected.addAll(beerRepository.findAllByBreweryId(currentBrewery.getBreweryId()));
-            fuelLeft -= currentBrewery.getDistanceFromCurrentPos();
+            fuelLeft -= distanceFromCurrentPos;
             currentLon = currentBrewery.getLongitude();
             currentLat = currentBrewery.getLatitude();
 
