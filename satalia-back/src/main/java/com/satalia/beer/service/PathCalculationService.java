@@ -36,15 +36,16 @@ public class PathCalculationService {
         Double fuelLeft = request.getDistanceAvailable();
         Double startingLat = request.getLatStart();
         Double startingLon = request.getLonStart();
-        Double currentLat;
-        Double currentLon;
+        Double currentLat = startingLat;
+        Double currentLon = startingLon;
+        visitedBreweries.add(String.format(" -> HOME: %f, %f, distance 0km", startingLat, startingLon));
         List<BreweryLocationModel> locationInfo = breweryLocationRepository.findAllById();
         calculateDistance(startingLat, startingLon, locationInfo);
 
 
         while(fuelLeft >= locationInfo.get(0).getDistanceFromCurrentPos() + Haversine.haversine(locationInfo.get(0).getLatitude(), locationInfo.get(0).getLongitude(), startingLat, startingLon)) {
             BreweryLocationModel currentBrewery = locationInfo.get(0);
-            visitedBreweries.add(currentBrewery.getBreweryName());
+            visitedBreweries.add(formatBreweryOutput(currentBrewery));
             distanceTravelled += currentBrewery.getDistanceFromCurrentPos();
             beersCollected.addAll(beerRepository.findAllByBreweryId(currentBrewery.getBreweryId()));
             fuelLeft -= currentBrewery.getDistanceFromCurrentPos();
@@ -54,10 +55,15 @@ public class PathCalculationService {
             locationInfo.remove(0);
             calculateDistance(currentLat, currentLon, locationInfo);
         }
-        distanceTravelled += Haversine.haversine(locationInfo.get(0).getLatitude(), locationInfo.get(0).getLongitude(), startingLat, startingLon);
-
+        Double distanceToHome = Haversine.haversine(currentLat, currentLon, startingLat, startingLon);
+        distanceTravelled += distanceToHome;
+        visitedBreweries.add(String.format(" <- HOME: %f, %f, distance %fkm", startingLat, startingLon, distanceToHome));
 
         return new CalculatedPathResponse(visitedBreweries, beersCollected, distanceTravelled);
+    }
+
+    private String formatBreweryOutput(BreweryLocationModel brewery) {
+        return String.format(" -> [ %d ] %s: %f, %f distance %fkm", brewery.getBreweryId(), brewery.getBreweryName(), brewery.getLatitude(), brewery.getLongitude(), brewery.getDistanceFromCurrentPos());
     }
 
     private void calculateDistance(Double latitude, Double longitude, List<BreweryLocationModel> locationInfo) {

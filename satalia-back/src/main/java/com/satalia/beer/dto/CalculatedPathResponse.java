@@ -1,7 +1,5 @@
 package com.satalia.beer.dto;
 
-import com.satalia.beer.entity.BeerEntity;
-import com.satalia.beer.entity.BreweryEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +16,6 @@ public class CalculatedPathResponse {
 
     private List<String> breweriesVisited;
     private List<String> beersCollected;
-    private Double distanceTraveled;
+    private Double distanceTravelled;
 
 }
